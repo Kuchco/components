@@ -51,15 +51,15 @@ export abstract class AbstractUserListFieldComponent  extends AbstractDataFieldC
         this._sideMenuService.open(component, SideMenuSize.MEDIUM,
             {value: this.dataField.value} as UserListInjectedData).onClose.subscribe($event => {
             if ($event.data) {
-                const existingValue = new UserListValue([]);
+                const existingValue: UserValue[] = [];
                 if (!!this.dataField.value) {
-                    existingValue.addUserValues(this.dataField.value.userValues)
+                    existingValue.push(...this.dataField.value)
                 }
-                existingValue.addUserValue($event.data as UserValue);
+                existingValue.push($event.data as UserValue);
                 this.dataField.value = existingValue;
                 this._snackbar.openGenericSnackBar(
                     this._translate.instant('dataField.snackBar.userAssigned',
-                    {userName: this.dataField.value.getLast().fullName}),
+                    {userName: this.dataField.getLast().fullName}),
                     'how_to_reg'
                 );
                 valueReturned = true;
@@ -70,8 +70,11 @@ export abstract class AbstractUserListFieldComponent  extends AbstractDataFieldC
     }
 
     public removeAbstractUser(user: UserValue) {
-        const existingUsers = new UserListValue([...this.dataField.value.userValues]);
-        existingUsers.removeUserValue(user);
+        const existingUsers: UserValue[] = [...this.dataField.value];
+        const index = this.dataField.value.findIndex(value => value.id === user.id);
+        if (index > -1) {
+            existingUsers.splice(index, 1);
+        }
         this.dataField.value = existingUsers;
     }
 

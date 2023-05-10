@@ -8,6 +8,6 @@ import { UserListValue } from '../../../../data-fields/user-list-field/models/us
  */
 export interface UserListInjectedData extends SideMenuInjectionData {
     roles: Array<string> | Array<ProcessRole>;
-    value: UserValue | UserListValue;
+    value: UserValue | UserListValue | Array<UserValue>;
     negativeRoles?: Array<string> | Array<ProcessRole>;
 }

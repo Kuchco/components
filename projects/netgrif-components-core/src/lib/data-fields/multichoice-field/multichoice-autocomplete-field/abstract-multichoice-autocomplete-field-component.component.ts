@@ -78,7 +78,7 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
         }
     }
 
-    protected _filter(value: string): Array<MultichoiceFieldValue> {
+    protected _filter(value: any): Array<MultichoiceFieldValue> {
         let filterType = this.filterType()?.toLowerCase()
         switch (filterType) {
             case MultichoiceAutocompleteFilterProperty.SUBSTRING:
@@ -91,21 +91,41 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
     }
 
     protected _filterInclude(value: string): Array<MultichoiceFieldValue> {
-        if (Array.isArray(value)) {
-            value = '';
+        if (typeof value === 'string') {
+            if (Array.isArray(value)) {
+                value = '';
+            }
+            const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return this.multichoiceField.choices
+                .filter(option => typeof option === 'string')
+                .filter(option => {
+                    if (typeof  option.value === 'string') {
+                        return option.value.toLowerCase().normalize('NFD')
+                            .replace(/[\u0300-\u036f]/g, '').includes(filterValue);
+                    }
+                })
+        } else {
+            return this.multichoiceField.choices;
         }
-        const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        return this.multichoiceField.choices.filter(option => option.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(filterValue));
     }
 
-    protected _filterIndexOf(value: string): Array<MultichoiceFieldValue> {
-        if (Array.isArray(value)) {
-            value = '';
-        }
-        const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    protected _filterIndexOf(value: any): Array<MultichoiceFieldValue> {
+        if (typeof value === 'string') {
+            if (Array.isArray(value)) {
+                value = '';
+            }
+            const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-        return this.multichoiceField.choices.filter(option => option.value.toLowerCase().normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '').indexOf(filterValue) === 0);
+            return this.multichoiceField.choices
+                .filter(option => typeof option === 'string')
+                .filter(option => {
+                    if (typeof  option.value === 'string') {
+                        return option.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').indexOf(filterValue) === 0;
+                    }
+                })
+        } else {
+            return this.multichoiceField.choices;
+        }
     }
 
     public renderSelection = (key) => {
@@ -117,7 +137,7 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
         return key;
     }
 
-    public getValueFromKey(key: string): string | undefined {
+    public getValueFromKey(key: string): any | undefined {
         return this.multichoiceField.choices.find(choice => choice.key === key)?.value;
     }
 }

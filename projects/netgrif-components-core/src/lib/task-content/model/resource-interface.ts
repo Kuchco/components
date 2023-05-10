@@ -9,6 +9,7 @@ import {FilterMetadata} from '../../search/models/persistance/filter-metadata';
 export interface DataFieldResource {
     stringId: string;
     type: FieldTypeResource;
+    collectionType: FieldTypeResource;
     name: string;
     description?: string;
     placeholder?: string;
@@ -28,7 +29,7 @@ export interface DataFieldResource {
     formatFilter?: FormatFilter;
     roles?: Array<any>;
     options?: {
-        [k: string]: string
+        [k: string]: any
     };
     allowedNets?: Array<string>;
     filterMetadata?: FilterMetadata;

@@ -21,8 +21,9 @@ import {TaskRefField} from '../../data-fields/task-ref-field/model/task-ref-fiel
 import {DynamicEnumerationField} from '../../data-fields/enumeration-field/models/dynamic-enumeration-field';
 import {FilterField} from '../../data-fields/filter-field/models/filter-field';
 import {I18nField} from '../../data-fields/i18n-field/models/i18n-field';
-import { UserListField } from '../../data-fields/user-list-field/models/user-list-field';
-import { UserListValue } from '../../data-fields/user-list-field/models/user-list-value';
+import {UserListField} from '../../data-fields/user-list-field/models/user-list-field';
+import {ListField} from "../../data-fields/list-field/models/list-field";
+import {CollectionField} from "../../data-fields/collection-field/models/collection-field";
 
 @Injectable({
     providedIn: 'root'
@@ -35,6 +36,8 @@ export class FieldConverterService {
 
     public toClass(item: DataFieldResource): DataField<any> {
         switch (item.type) {
+            case FieldTypeResource.LIST:
+                return this.resolveListField(item);
             case FieldTypeResource.BOOLEAN:
                 return new BooleanField(item.stringId, item.name, item.value as boolean, item.behavior,
                     item.placeholder, item.description, item.layout, item.validations, item.component, item.parentTaskId);
@@ -52,13 +55,8 @@ export class FieldConverterService {
             case FieldTypeResource.ENUMERATION_MAP:
                 return this.resolveEnumField(item);
             case FieldTypeResource.MULTICHOICE:
-                return new MultichoiceField(item.stringId, item.name, item.value, this.resolveMultichoiceChoices(item),
-                    item.behavior, item.placeholder, item.description, item.layout, item.type, item.validations,
-                    item.component, item.parentTaskId);
             case FieldTypeResource.MULTICHOICE_MAP:
-                return new MultichoiceField(item.stringId, item.name, item.value, this.resolveMultichoiceOptions(item),
-                    item.behavior, item.placeholder, item.description, item.layout,
-                    item.type, item.validations, item.component, item.parentTaskId);
+                return this.resolveMultichoiceField(item);
             case FieldTypeResource.DATE:
                 let date;
                 if (item.value) {
@@ -80,23 +78,12 @@ export class FieldConverterService {
                 }
                 return new UserField(item.stringId, item.name, item.behavior, user,
                     item.roles, item.placeholder, item.description, item.layout, item.validations, item.component, item.parentTaskId);
-            case FieldTypeResource.USER_LIST:
-                let userListValue = new UserListValue([]);
-                if (item.value) {
-                    item.value.userValues.forEach(u => userListValue.addUserValue(new UserValue(u.id, u.name, u.surname, u.email)));
-                }
-                return new UserListField(item.stringId, item.name, item.behavior, userListValue,
-                    item.placeholder, item.description, item.layout, item.validations, item.component, item.parentTaskId);
             case FieldTypeResource.BUTTON:
                 return new ButtonField(item.stringId, item.name, item.behavior, item.value as number,
                     item.placeholder, item.description, item.layout, item.validations, item.component, item.parentTaskId);
             case FieldTypeResource.FILE:
                 return new FileField(item.stringId, item.name, item.behavior, item.value ? item.value : {},
                     item.placeholder, item.description, item.layout, null, null, item.validations, item.component,
-                    item.parentTaskId);
-            case FieldTypeResource.FILE_LIST:
-                return new FileListField(item.stringId, item.name, item.behavior, item.value ? item.value : {},
-                    item.placeholder, item.description, item.layout, item.validations, null, null, item.component,
                     item.parentTaskId);
             case FieldTypeResource.TASK_REF:
                 return new TaskRefField(item.stringId, item.name, item.value ? item.value : [], item.behavior,
@@ -125,12 +112,8 @@ export class FieldConverterService {
             return FieldTypeResource.DATE_TIME;
         } else if (item instanceof FileField) {
             return FieldTypeResource.FILE;
-        } else if (item instanceof FileListField) {
-            return FieldTypeResource.FILE_LIST;
         } else if (item instanceof UserField) {
             return FieldTypeResource.USER;
-        } else if (item instanceof UserListField) {
-            return FieldTypeResource.USER_LIST;
         } else if (item instanceof TaskRefField) {
             return FieldTypeResource.TASK_REF;
         } else if (item instanceof EnumerationField || item instanceof MultichoiceField) {
@@ -139,6 +122,8 @@ export class FieldConverterService {
             return FieldTypeResource.FILTER;
         } else if (item instanceof I18nField) {
             return FieldTypeResource.I18N;
+        } else if (item instanceof ListField || item instanceof FileListField || item instanceof UserListField) {
+            return FieldTypeResource.LIST;
         }
     }
 
@@ -168,6 +153,15 @@ export class FieldConverterService {
                 return value.format('DD.MM.YYYY HH:mm:ss');
             }
         }
+        if (this.resolveType(field) === FieldTypeResource.ENUMERATION) {
+            return this.formatCollectionValueForBackEnd(value, (field as EnumerationField).collectionType);
+        }
+        if (this.resolveType(field) === FieldTypeResource.MULTICHOICE) {
+            return value.map((element) => this.formatCollectionValueForBackEnd(element, (field as MultichoiceField).collectionType));
+        }
+        if (this.resolveType(field) === FieldTypeResource.LIST) {
+            return value.map((element) => this.formatCollectionValueForBackEnd(element, (field as ListField).collectionType));
+        }
         return value;
     }
 
@@ -190,12 +184,18 @@ export class FieldConverterService {
         const options = enumField.type === FieldTypeResource.ENUMERATION
             ? this.resolveEnumChoices(enumField)
             : this.resolveEnumOptions(enumField);
+        let enumValue;
+        if (enumField.value) {
+            enumValue = this.formatCollectionValueFromBackend(enumField.value, enumField.collectionType);
+        }
         if (enumField.component && enumField.component.name === 'autocomplete_dynamic') {
-            return new DynamicEnumerationField(enumField.stringId, enumField.name, enumField.value, options,
+            return new DynamicEnumerationField(enumField.stringId, enumField.name, enumValue, options,
+                enumField.collectionType,
                 enumField.behavior, enumField.placeholder, enumField.description, enumField.layout,
                 enumField.type, enumField.validations, enumField.component, enumField.parentTaskId);
         } else {
-            return new EnumerationField(enumField.stringId, enumField.name, enumField.value, options,
+            return new EnumerationField(enumField.stringId, enumField.name, enumValue, options,
+                enumField.collectionType,
                 enumField.behavior, enumField.placeholder, enumField.description, enumField.layout,
                 enumField.type, enumField.validations, enumField.component, enumField.parentTaskId);
         }
@@ -210,7 +210,10 @@ export class FieldConverterService {
         const enumChoices = [];
         if (enumField.choices instanceof Array) {
             enumField.choices.forEach(it => {
-                enumChoices.push({key: it, value: it} as EnumerationFieldValue);
+                enumChoices.push({
+                    key: it.toString(),
+                    value: this.formatCollectionValueFromBackend(it, enumField.collectionType)
+                } as EnumerationFieldValue);
             });
         } else {
             Object.keys(enumField.choices).forEach(key => {
@@ -226,7 +229,25 @@ export class FieldConverterService {
      * @returns the options for the enumeration field
      */
     protected resolveEnumOptions(enumField: DataFieldResource): Array<EnumerationFieldValue> {
-        return Object.entries(enumField.options).map(entry => ({key: entry[0], value: entry[1]}));
+        return Object.entries(enumField.options).map(entry => ({
+                key: entry[0],
+                value: this.formatCollectionValueFromBackend(entry[1], enumField.collectionType)
+            }));
+    }
+
+    protected resolveMultichoiceField(multichoiceField: DataFieldResource): MultichoiceField {
+        const options = multichoiceField.type === FieldTypeResource.MULTICHOICE
+            ? this.resolveMultichoiceChoices(multichoiceField)
+            : this.resolveMultichoiceOptions(multichoiceField);
+        let multiValue;
+        if (multichoiceField.value) {
+            multiValue = multichoiceField.value.map((val) => this.formatCollectionValueFromBackend(val, multichoiceField.collectionType));
+        }
+        return new MultichoiceField(multichoiceField.stringId, multichoiceField.name, multiValue, options,
+            multichoiceField.collectionType,
+            multichoiceField.behavior, multichoiceField.placeholder, multichoiceField.description,
+            multichoiceField.layout, multichoiceField.type, multichoiceField.validations,
+            multichoiceField.component, multichoiceField.parentTaskId);
     }
 
     /**
@@ -238,7 +259,10 @@ export class FieldConverterService {
         const choicesMulti: Array<MultichoiceFieldValue> = [];
         if (multiField.choices instanceof Array) {
             multiField.choices.forEach(it => {
-                choicesMulti.push({key: it, value: it} as MultichoiceFieldValue);
+                choicesMulti.push({
+                    key: it.toString(),
+                    value: this.formatCollectionValueFromBackend(it, multiField.collectionType)
+                } as MultichoiceFieldValue);
             });
         } else {
             Object.keys(multiField.choices).forEach(key => {
@@ -254,9 +278,92 @@ export class FieldConverterService {
      * @returns the options for the multichoice field
      */
     protected resolveMultichoiceOptions(multiField: DataFieldResource): Array<MultichoiceFieldValue> {
-        return Object.entries(multiField.options).map(entry => ({key: entry[0], value: entry[1]}));
+        return Object.entries(multiField.options).map(entry => ({
+            key: entry[0],
+            value: this.formatCollectionValueFromBackend(entry[1], multiField.collectionType)
+        }));
     }
 
+    protected resolveListField(listField: DataFieldResource): CollectionField {
+        switch (listField.collectionType) {
+            case FieldTypeResource.USER:
+                let userListValue: UserValue[] = [];
+                if (listField.value) {
+                    listField.value.forEach(u => userListValue
+                        .push(this.formatCollectionValueFromBackend(u, listField.collectionType)));
+                }
+                return new UserListField(listField.stringId, listField.name, listField.behavior, userListValue,
+                    listField.collectionType,
+                    listField.placeholder, listField.description, listField.layout, listField.validations,
+                    listField.component, listField.parentTaskId);
+            case FieldTypeResource.FILE:
+                let fileListValue = listField.value.map((val) => this.formatCollectionValueFromBackend(val, listField.collectionType));
+                return new FileListField(listField.stringId, listField.name, listField.behavior,
+                    listField.collectionType, fileListValue, listField.placeholder,
+                    listField.description, listField.layout, listField.validations, null, null, listField.component,
+                    listField.parentTaskId);
+            default:
+                let listValue = listField.value.map((val) => this.formatCollectionValueFromBackend(val, listField.collectionType));
+                return new ListField(listField.stringId, listField.name, listValue, listField.behavior,
+                    listField.placeholder, listField.description, listField.layout, listField.validations, listField.component, listField.parentTaskId,
+                    listField.collectionType)
+        }
+    }
+
+    public formatCollectionValueForBackEnd(value: any, collectionValue: string): any {
+        switch (collectionValue as FieldTypeResource) {
+            case FieldTypeResource.TEXT:
+                return value as string;
+            case FieldTypeResource.NUMBER:
+                return value as number;
+            case FieldTypeResource.DATE:
+                if (moment.isMoment(value)) {
+                    return value.format('YYYY-MM-DD');
+                }
+                break;
+            case FieldTypeResource.DATE_TIME:
+                if (moment.isMoment(value)) {
+                    return value.format('DD.MM.YYYY HH:mm:ss');
+                }
+                break;
+            case FieldTypeResource.USER:
+                return value.id;
+            case FieldTypeResource.FILE:
+                return value;
+            case FieldTypeResource.I18N:
+                return value as string;
+                break;
+            default:
+                console.log('Unknown field type');
+                break;
+        }
+    }
+
+    public formatCollectionValueFromBackend(value: any, type: string): any {
+        if (value == null) {
+            return null;
+        }
+        switch (type as FieldTypeResource) {
+            case FieldTypeResource.TEXT:
+                return value as string;
+            case FieldTypeResource.NUMBER:
+                return value as number;
+            case FieldTypeResource.USER:
+                if (value) {
+                    return new UserValue(value.id, value.name, value.surname, value.email);
+                }
+                return null;
+            case FieldTypeResource.FILE:
+                return value ? value : {};
+            case FieldTypeResource.DATE_TIME:
+            case FieldTypeResource.DATE:
+                return moment(value);
+            case FieldTypeResource.I18N:
+                return value;
+        }
+    }
+
+    //TODO fix probably
     public formatValueFromBackend(field: DataField<any>, value: any): any {
         if (value === null) {
             return null;

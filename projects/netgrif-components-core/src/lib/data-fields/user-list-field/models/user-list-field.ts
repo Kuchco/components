@@ -1,22 +1,22 @@
-import { DataField } from '../../models/abstract-data-field';
 import { Behavior } from '../../models/behavior';
 import { Layout } from '../../models/layout';
 import { Validation } from '../../models/validation';
 import { Component } from '../../models/component';
-import { UserListValue } from './user-list-value';
 import {AbstractControl, FormControl, ValidatorFn} from "@angular/forms";
+import {ListField} from "../../list-field/models/list-field";
+import {UserValue} from "../../user-field/models/user-value";
 
-export class UserListField extends DataField<UserListValue> {
+export class UserListField extends ListField {
 
-    constructor(stringId: string, title: string, behavior: Behavior, value: UserListValue,
+    constructor(stringId: string, title: string, behavior: Behavior, value: Array<UserValue>, protected _collectionType: string,
                 placeholder?: string, description?: string, layout?: Layout, validations?: Array<Validation>, component?: Component,
                 parentTaskId?: string) {
-        super(stringId, title, value, behavior, placeholder, description, layout, validations, component, parentTaskId);
+        super(stringId, title, value, behavior, placeholder, description, layout, validations, component, parentTaskId, _collectionType);
     }
 
-    protected valueEquality(a: UserListValue, b: UserListValue): boolean {
+    protected valueEquality(a: any[], b: any[]): boolean {
         return (!a && !b) ||
-            (!!a && !!b && a.userValues.length === b.userValues.length);
+            (!!a && !!b && a.length === b.length);
     }
 
     protected calculateValidity(forValidRequired: boolean, formControl: FormControl): boolean {
@@ -60,4 +60,10 @@ export class UserListField extends DataField<UserListValue> {
         return !!control.value && !!control.value._userValues && control.value._userValues.length > 0 ? null : {requiredUserList: true};
     }
 
+    public removeUserValue(value: UserValue): void {
+        const index = this.value.findIndex(user => user.id === value.id);
+        if (index > -1) {
+            this.value.splice(index, 1);
+        }
+    }
 }

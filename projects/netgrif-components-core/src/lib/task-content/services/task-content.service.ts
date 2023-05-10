@@ -172,7 +172,7 @@ export abstract class TaskContentService implements OnDestroy {
             for (const field of group.fields) {
                 if (field instanceof DynamicEnumerationField) {
                     if (field.choices !== undefined && field.choices.length !== 0 && field.value !== '' && field.value !== undefined) {
-                        if (!field.choices.some(choice => choice.key === field.value)) {
+                        if (!field.choices.some(choice => choice.value === field.value)) {
                             field.value = '';
                             if (field.behavior.required) {
                                 valid = false;

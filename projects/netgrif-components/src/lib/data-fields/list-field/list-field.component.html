@@ -1,0 +1,87 @@
+<nc-data-field-template *ngIf="!dataField.behavior.hidden"
+                        [dataField]="dataField"
+                        [dataFieldTemplate]="dataFieldTemplate"
+                        [offset]="taskOffset">
+</nc-data-field-template>
+
+<ng-template #dataFieldTemplate let-showLargeLayout="showLargeLayout">
+    <div [ngSwitch]="dataField.collectionType">
+        <nc-file-list-field *ngSwitchCase="'file'"
+                            [dataField]="dataField"
+                            [taskId]="taskId"
+                            [taskOffset]="taskOffset"
+                            fxFlex>
+        </nc-file-list-field>
+        <nc-user-list-field *ngSwitchCase="'user'"
+                            [dataField]="dataField"
+                            [taskOffset]="taskOffset"
+                            fxFlex>
+        </nc-user-list-field>
+        <mat-list *ngSwitchDefault class="form-input button-icon-input full-width input-margin" fxLayout="row" fxLayoutAlign="start center" [ngClass]="{'form-input-disabled': formControl.disabled, 'form-input-error': dataField.isInvalid(formControl)}">
+            <button mat-icon-button color="accent" (click)="upload()"
+                    [matTooltip]="'dataField.file.clickToUpload'" *ngIf="!formControl.disabled && dataField.collectionType !== fieldTypeEnum.I18N">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <div *ngIf="dataField.value.length !== 0" class="input-name-ellipsis" fxFlex>
+                <div fxLayout="column" fxLayoutAlign="start center">
+                    <mat-list-item *ngFor="let value of dataField.value; let i = index" fxFlex [ngSwitch]="dataField.collectionType">
+                        <mat-form-field *ngSwitchCase="fieldTypeEnum.DATE" fxFlex color="primary">
+                            <input matInput
+                                   [disabled]="formControl.disabled"
+                                   [matDatepicker]="datepicker"
+                                   [value]="value"
+                                   (click)="datepicker.open()"
+                                   (keydown.enter)="datepicker.close()"
+                                   [attr.data-index]="i"
+                                   (dateInput)="onValueChanged($event, i)">
+                            <mat-datepicker-toggle matPrefix [for]="datepicker"></mat-datepicker-toggle>
+                            <mat-datepicker #datepicker></mat-datepicker>
+
+                            <!--                        <mat-error *ngIf="dataField.isInvalid(formControl)">{{getErrorMessage()}}</mat-error>-->
+                        </mat-form-field>
+                        <mat-form-field *ngSwitchCase="fieldTypeEnum.DATE_TIME" fxFlex color="primary">
+                            <mat-label *ngIf="!showLargeLayout.value">{{dataField.title}}</mat-label>
+                            <input matInput
+                                   [ngxMatDatetimePicker]="datetimePicker"
+                                   [value]="value"
+                                   [disabled]="formControl.disabled"
+                                   (click)="datetimePicker.open()"
+                                   (dateInput)="onValueChanged($event, i)">
+                            <mat-datepicker-toggle matPrefix [for]="datetimePicker"></mat-datepicker-toggle>
+                            <ngx-mat-datetime-picker #datetimePicker
+                                                     [showSpinners]="true"
+                                                     [showSeconds]="false"
+                                                     [stepHour]="1"
+                                                     [stepMinute]="5"
+                                                     [color]="'primary'"
+                                                     [enableMeridian]="false">
+                            </ngx-mat-datetime-picker>
+<!--                            <mat-error *ngIf="dataField.isInvalid(formControl)">{{getErrorMessage()}}</mat-error>-->
+                        </mat-form-field>
+                        <mat-form-field *ngSwitchCase="fieldTypeEnum.TEXT" fxFlex color="primary">
+                            <input matInput
+                                   [value]="value"
+                                   [disabled]="formControl.disabled"
+                                   (blur)="onValueChanged($event, i)">
+                        </mat-form-field>
+                        <mat-form-field *ngSwitchCase="fieldTypeEnum.NUMBER" fxFlex color="primary">
+                            <input matInput
+                                   type="number"
+                                   [value]="value"
+                                   [disabled]="formControl.disabled"
+                                   (blur)="onValueChanged($event, i)">
+                            <!--                            <mat-error *ngIf="numberField.isInvalid(formControlRef)">{{getErrorMessage()}}</mat-error>-->
+                        </mat-form-field>
+                        <div *ngSwitchCase="fieldTypeEnum.I18N" fxFlex>
+                            {{value}}
+                        </div>
+                        <button (click)="deleteValue(i)" [matTooltip]="'dataField.file.clickToDelete' | translate" mat-icon-button
+                                *ngIf="!formControl.disabled">
+                            <mat-icon color="warn">close</mat-icon>
+                        </button>
+                    </mat-list-item>
+                </div>
+            </div>
+        </mat-list>
+    </div>
+</ng-template>

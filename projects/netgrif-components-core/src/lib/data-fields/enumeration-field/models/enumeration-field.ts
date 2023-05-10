@@ -7,10 +7,16 @@ import {Component} from '../../models/component';
 import {Validation} from '../../models/validation';
 import {Observable} from "rxjs";
 import {debounceTime} from "rxjs/operators";
+import {Moment} from "moment";
+import {UserValue} from "../../user-field/models/user-value";
+import {FileFieldValue} from "../../file-field/models/file-field-value";
+import {I18nFieldValue} from "../../i18n-field/models/i18n-field-value";
+import {CollectionField} from "../../collection-field/models/collection-field";
 
 export interface EnumerationFieldValue {
     key: string;
-    value: string;
+    value: Moment | number | UserValue | FileFieldValue | I18nFieldValue | string;
+    // value: DataField<any>;
 }
 
 export enum EnumerationFieldValidation {
@@ -18,11 +24,11 @@ export enum EnumerationFieldValidation {
     REQUIRED = 'required'
 }
 
-export class EnumerationField extends DataField<string> {
+export class EnumerationField extends DataField<any> implements CollectionField {
     protected REQUEST_DEBOUNCE_TIME = 600;
 
-    constructor(stringId: string, title: string, value: string,
-                protected _choices: Array<EnumerationFieldValue>, behavior: Behavior, placeholder?: string, description?: string,
+    constructor(stringId: string, title: string, value: any,
+                protected _choices: Array<EnumerationFieldValue>, protected _collectionType: string, behavior: Behavior, placeholder?: string, description?: string,
                 layout?: Layout, protected readonly _fieldType = FieldTypeResource.ENUMERATION,
                 validations?: Array<Validation>, component?: Component, parentTaskId?: string) {
         super(stringId, title, value, behavior, placeholder, description, layout, validations, component, parentTaskId);
@@ -59,6 +65,18 @@ export class EnumerationField extends DataField<string> {
         if (this._choices === undefined || this._choices.length === 0 || control.value === '' || control.value === undefined) {
             return null;
         }
-        return this._choices.find(choice => choice.key === control.value || control.value === null) ? null : {wrongValue: true};
+        return this._choices.find(choice => choice.value === control.value || control.value === null) ? null : {wrongValue: true};
+    }
+
+    set collectionType(value: string) {
+        this._collectionType = value;
+    }
+
+    get collectionType(): string {
+        return this._collectionType.toString();
+    }
+
+    convertTimestampToDateTime(timestamp: number): Date {
+        return new Date(timestamp);
     }
 }

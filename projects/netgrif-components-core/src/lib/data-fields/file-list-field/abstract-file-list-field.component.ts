@@ -78,6 +78,7 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
     }
 
     ngOnInit(): void {
+        this.parseResponse();
         super.ngOnInit();
         this.valueChange$ = this.dataField.valueChanges().subscribe(() => {
             this.parseResponse();
@@ -155,8 +156,8 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
             return;
         }
 
-        if (this.dataField.value && this.dataField.value.namesPaths && this.dataField.value.namesPaths.length !== 0) {
-            this.dataField.value.namesPaths.forEach(namePath => {
+        if (this.dataField.value && this.dataField.value.length !== 0) {
+            this.dataField.value.forEach(namePath => {
                 filesToUpload = filesToUpload.filter(fileToUpload => fileToUpload.name !== namePath.name);
             });
             if (filesToUpload.length === 0) {
@@ -205,8 +206,8 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
                         this.state.error = false;
                         filesToUpload.forEach(fileToUpload => {
                             this.uploadedFiles.push(fileToUpload.name);
-                            this.dataField.value.namesPaths.push({name: fileToUpload.name});
-                            this.formControl.setValue(this.dataField.value.namesPaths.map(namePath => {
+                            this.dataField.value.push({name: fileToUpload.name});
+                            this.formControl.setValue(this.dataField.value.map(namePath => {
                                 return namePath['name'];
                             }).join('/'));
                         });
@@ -235,8 +236,8 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
     }
 
     public download(fileName: string) {
-        if (!this.dataField.value || !this.dataField.value.namesPaths ||
-            !this.dataField.value.namesPaths.find(namePath => namePath.name === fileName)) {
+        if (!this.dataField.value || !this.dataField.value ||
+            !this.dataField.value.find(namePath => namePath.name === fileName)) {
             return;
         }
         if (!this.taskId) {
@@ -279,8 +280,8 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
     }
 
     public deleteFile(fileName: string) {
-        if (!this.dataField.value || !this.dataField.value.namesPaths ||
-            !this.dataField.value.namesPaths.find(namePath => namePath.name === fileName)) {
+        if (!this.dataField.value || !this.dataField.value ||
+            !this.dataField.value.find(namePath => namePath.name === fileName)) {
             return;
         }
         if (!this.taskId) {
@@ -297,9 +298,11 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
                 this.dataField.emitChangedFields(changedFieldsMap);
                 this.fileUploadEl.nativeElement.value = '';
                 this.uploadedFiles = this.uploadedFiles.filter(uploadedFile => uploadedFile !== fileName);
-                if (this.dataField.value.namesPaths) {
-                    this.dataField.value.namesPaths = this.dataField.value.namesPaths.filter(namePath => namePath.name !== fileName);
-                    this.formControl.setValue(this.dataField.value.namesPaths.map(namePath => {
+                if (this.dataField.value) {
+                    let newValue: FileFieldValue[] = [];
+                    newValue.push(...this.dataField.value.filter(namePath => namePath.name !== fileName))
+                    this.dataField.value = newValue;
+                    this.formControl.setValue(this.dataField.value.map(namePath => {
                         return namePath['name'];
                     }).join('/'));
                     this.dataField.update();
@@ -338,15 +341,15 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
 
     protected parseResponse(): void {
         if (this.dataField.value) {
-            if (!!this.dataField.value.namesPaths && this.dataField.value.namesPaths.length !== 0) {
+            if (!!this.dataField.value && this.dataField.value.length !== 0) {
                 this.uploadedFiles = new Array<string>();
-                this.dataField.value.namesPaths.forEach(namePath => {
+                this.dataField.value.forEach(namePath => {
                     this.uploadedFiles.push(namePath.name);
                 });
             } else {
-                this.dataField.value.namesPaths = new Array<FileFieldValue>();
+                this.dataField.value = new Array<FileFieldValue>();
             }
-            this.uploadedFiles = this.dataField.value.namesPaths.map(namePath => namePath.name);
+            this.uploadedFiles = this.dataField.value.map(namePath => namePath.name);
         }
     }
 

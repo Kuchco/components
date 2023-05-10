@@ -1,4 +1,7 @@
 <div fxLayout="row" fxLayoutAlign="start center" class="netgrif-input" [ngClass]="{'min-row-height': isField() && !isCustomHeight()}" [ngSwitch]="getElementType()">
+    <nc-list-field *ngSwitchCase="fieldTypeEnum.LIST" [dataField]="getDataField()" [taskId]="getTaskId()" [taskOffset]="getFieldOffset()" fxFlex>
+    </nc-list-field>
+
     <nc-boolean-field *ngSwitchCase="fieldTypeEnum.BOOLEAN" [dataField]="getDataField()" [taskOffset]="getFieldOffset()" fxFlex>
     </nc-boolean-field>
 

@@ -145,10 +145,10 @@ export interface LocalisedEnumerationFields {
      * [Behavior]{@link Behavior}
      */
     behavior: Behavior;
-    value: string;
+    value: any;
     order: number;
-    choices: Array<string>;
-    defaultValue?: string;
+    choices: Array<any>;
+    defaultValue?: any;
 }
 
 /**
@@ -161,10 +161,10 @@ export interface LocalisedMultichoiceFields {
     description: string;
     placeholder: string;
     behavior: Behavior;
-    value: Array<string> | string;
+    value: Array<any> | any;
     order: number;
-    choices: Array<string> | string;
-    defaultValue?: Array<string> | string;
+    choices: Array<any> | any;
+    defaultValue?: Array<any> | any;
 }
 
 /**

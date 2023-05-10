@@ -65,6 +65,9 @@ import {
     MultichoiceAutocompleteFieldComponent
 } from './multichoice-field/multichoice-autocomplete-field/multichoice-autocomplete-field.component';
 import { UserListFieldComponent } from './user-list-field/user-list-field.component';
+import { ListFieldComponent } from './list-field/list-field.component';
+import {CollectionFieldComponent} from "./collection-field/collection-field.component";
+import {MatListModule} from "@angular/material/list";
 
 @NgModule({
     declarations: [
@@ -106,24 +109,28 @@ import { UserListFieldComponent } from './user-list-field/user-list-field.compon
         I18nTextFieldComponent,
         EasymdeWrapperComponent,
         UserListFieldComponent,
+        ListFieldComponent,
+        CollectionFieldComponent
     ],
-	exports: [
-		BooleanFieldComponent,
-		ButtonFieldComponent,
-		DataFieldTemplateComponent,
-		DateFieldComponent,
-		DateTimeFieldComponent,
-		EnumerationFieldComponent,
-		FileFieldComponent,
-		FileListFieldComponent,
-		MultichoiceFieldComponent,
-		NumberFieldComponent,
-		TextFieldComponent,
-		UserFieldComponent,
-		FilterFieldComponent,
-		I18nFieldComponent,
-		UserListFieldComponent
-	],
+    exports: [
+        BooleanFieldComponent,
+        ButtonFieldComponent,
+        DataFieldTemplateComponent,
+        DateFieldComponent,
+        DateTimeFieldComponent,
+        EnumerationFieldComponent,
+        FileFieldComponent,
+        FileListFieldComponent,
+        MultichoiceFieldComponent,
+        NumberFieldComponent,
+        TextFieldComponent,
+        UserFieldComponent,
+        FilterFieldComponent,
+        I18nFieldComponent,
+        UserListFieldComponent,
+        CollectionFieldComponent,
+        ListFieldComponent
+    ],
     imports: [
         CommonModule,
         FlexLayoutModule,
@@ -142,7 +149,8 @@ import { UserListFieldComponent } from './user-list-field/user-list-field.compon
         MatProgressSpinnerModule,
         CurrencyModule,
         BrowserModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        MatListModule
     ],
     providers: [
         { provide: DateAdapter, useClass: CustomDateAdapter }

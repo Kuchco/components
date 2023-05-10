@@ -557,6 +557,10 @@ export abstract class DataField<T> {
     }
 
     public isInvalid(formControl: FormControl): boolean {
+        if (!formControl.disabled && !formControl.valid && formControl.touched) {
+            console.log(formControl.value);
+            console.log(formControl.errors);
+        }
         return !formControl.disabled && !formControl.valid && formControl.touched;
     }
 

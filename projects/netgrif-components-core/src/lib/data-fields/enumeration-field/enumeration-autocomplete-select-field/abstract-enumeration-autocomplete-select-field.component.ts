@@ -59,7 +59,7 @@ export abstract class AbstractEnumerationAutocompleteSelectFieldComponent implem
     protected _filterInclude(value: string): Array<EnumerationFieldValue> {
         const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         return this.enumerationField.choices.filter(option =>
-            option.value.toLowerCase()
+            option.value.toString().toLowerCase()
                 .normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
                 .includes(filterValue));
@@ -74,7 +74,7 @@ export abstract class AbstractEnumerationAutocompleteSelectFieldComponent implem
     protected _filterIndexOf(value: string): Array<EnumerationFieldValue> {
         const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-        return this.enumerationField.choices.filter(option => option.value.toLowerCase().normalize('NFD')
+        return this.enumerationField.choices.filter(option => option.value.toString().toLowerCase().normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '').indexOf(filterValue) === 0);
     }
 

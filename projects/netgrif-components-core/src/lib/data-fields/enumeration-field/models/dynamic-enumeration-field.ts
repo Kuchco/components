@@ -14,11 +14,11 @@ export class DynamicEnumerationField extends EnumerationField {
     protected _choicesChange$: Subject<void>;
     protected _loading: LoadingEmitter;
 
-    constructor(stringId: string, title: string, value: string,
-                protected _choices: Array<EnumerationFieldValue>, behavior: Behavior, placeholder?: string, description?: string,
+    constructor(stringId: string, title: string, value: EnumerationFieldValue,
+                protected _choices: Array<EnumerationFieldValue>, protected _collectionType: string, behavior: Behavior, placeholder?: string, description?: string,
                 layout?: Layout, protected readonly _fieldType = FieldTypeResource.ENUMERATION,
                 validations?: Array<Validation>, component?: Component, parentTaskId?: string) {
-        super(stringId, title, value, _choices, behavior, placeholder, description, layout, _fieldType, validations,
+        super(stringId, title, value, _choices, _collectionType, behavior, placeholder, description, layout, _fieldType, validations,
             component, parentTaskId);
         this._choicesChange$ = new Subject<void>();
         this._loading = new LoadingEmitter();

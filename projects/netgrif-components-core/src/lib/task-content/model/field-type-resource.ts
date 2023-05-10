@@ -2,6 +2,7 @@
  * Contains types of renderable data fields.
  */
 export enum FieldTypeResource {
+    LIST = 'list',
     BOOLEAN = 'boolean',
     TEXT = 'text',
     NUMBER = 'number',

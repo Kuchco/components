@@ -90,6 +90,7 @@
         "angular-resizable-element": "~3.3.0",
         "angular-resize-event": "~3.1.1",
         "angular2-hotkeys": "~2.4.0",
+        "bson-objectid": "^2.0.4",
         "easymde": "~2.16.1",
         "hammerjs": "~2.0.8",
         "json-schema-to-typescript": "~8.1.0",
