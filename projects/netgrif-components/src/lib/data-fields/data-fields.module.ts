@@ -66,7 +66,6 @@ import {
 } from './multichoice-field/multichoice-autocomplete-field/multichoice-autocomplete-field.component';
 import { UserListFieldComponent } from './user-list-field/user-list-field.component';
 import { ListFieldComponent } from './list-field/list-field.component';
-import {CollectionFieldComponent} from "./collection-field/collection-field.component";
 import {MatListModule} from "@angular/material/list";
 
 @NgModule({
@@ -109,8 +108,7 @@ import {MatListModule} from "@angular/material/list";
         I18nTextFieldComponent,
         EasymdeWrapperComponent,
         UserListFieldComponent,
-        ListFieldComponent,
-        CollectionFieldComponent
+        ListFieldComponent
     ],
     exports: [
         BooleanFieldComponent,
@@ -128,7 +126,6 @@ import {MatListModule} from "@angular/material/list";
         FilterFieldComponent,
         I18nFieldComponent,
         UserListFieldComponent,
-        CollectionFieldComponent,
         ListFieldComponent
     ],
     imports: [

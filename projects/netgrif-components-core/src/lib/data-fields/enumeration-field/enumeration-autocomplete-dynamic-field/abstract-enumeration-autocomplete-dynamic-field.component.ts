@@ -5,7 +5,8 @@ import {TranslateService} from '@ngx-translate/core';
 import {map, startWith} from 'rxjs/operators';
 import {DynamicEnumerationField} from '../models/dynamic-enumeration-field';
 import {WrappedBoolean} from '../../data-field-template/models/wrapped-boolean';
-import {EnumerationFieldValidation, EnumerationFieldValue} from '../models/enumeration-field';
+import {EnumerationFieldValidation} from '../models/enumeration-field';
+import {ChoiceFieldValue} from "../../models/choice-field-value";
 
 @Component({
     selector: 'ncc-abstract-enumeration-autocomplete-dynamic-field',
@@ -18,7 +19,7 @@ export abstract class AbstractEnumerationAutocompleteDynamicFieldComponent imple
     @Input() showLargeLayout: WrappedBoolean;
     @ViewChild('input') text: ElementRef;
 
-    filteredOptions: Observable<Array<EnumerationFieldValue>>;
+    filteredOptions: Observable<Array<ChoiceFieldValue>>;
 
     constructor(protected _translate: TranslateService) {
     }

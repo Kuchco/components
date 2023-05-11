@@ -5,7 +5,7 @@ import {Task} from '../../resources/interface/task';
 import {LoggerService} from '../../logger/services/logger.service';
 import {SnackBarService} from '../../snack-bar/services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
-import {EnumerationField, EnumerationFieldValue} from '../../data-fields/enumeration-field/models/enumeration-field';
+import {EnumerationField} from '../../data-fields/enumeration-field/models/enumeration-field';
 import {MultichoiceField} from '../../data-fields/multichoice-field/models/multichoice-field';
 import {Change, ChangedFields, FrontendActions} from '../../data-fields/models/changed-fields';
 import {FieldConverterService} from './field-converter.service';
@@ -15,6 +15,7 @@ import {Validation} from '../../data-fields/models/validation';
 import {TaskEventOutcome} from '../../event/model/event-outcomes/task-outcomes/task-event-outcome';
 import {DataField} from '../../data-fields/models/abstract-data-field';
 import {TaskFields} from '../model/task-fields';
+import {ChoiceFieldValue} from "../../data-fields/models/choice-field-value";
 
 /**
  * Acts as a communication interface between the Component that renders Task content and it's parent Component.
@@ -267,17 +268,17 @@ export abstract class TaskContentService implements OnDestroy {
                     }
                     break;
                 case 'choices':
-                    const newChoices: Array<EnumerationFieldValue> = [];
+                    const newChoices: Array<ChoiceFieldValue> = [];
                     if (updatedField.choices instanceof Array) {
                         updatedField.choices.forEach(it => {
-                            newChoices.push({key: it, value: it} as EnumerationFieldValue);
+                            newChoices.push({key: it, value: it} as ChoiceFieldValue);
                         });
                     } else {
                         Object.keys(updatedField.choices).forEach(choiceKey => {
                             newChoices.push({
                                 key: choiceKey,
                                 value: updatedField.choices[choiceKey]
-                            } as EnumerationFieldValue);
+                            } as ChoiceFieldValue);
                         });
                     }
                     (field as EnumerationField | MultichoiceField).choices = newChoices;

@@ -7,38 +7,30 @@ import {Component} from '../../models/component';
 import {Validation} from '../../models/validation';
 import {Observable} from "rxjs";
 import {debounceTime} from "rxjs/operators";
-import {Moment} from "moment";
-import {UserValue} from "../../user-field/models/user-value";
-import {FileFieldValue} from "../../file-field/models/file-field-value";
-import {I18nFieldValue} from "../../i18n-field/models/i18n-field-value";
 import {CollectionField} from "../../collection-field/models/collection-field";
-
-export interface EnumerationFieldValue {
-    key: string;
-    value: Moment | number | UserValue | FileFieldValue | I18nFieldValue | string;
-    // value: DataField<any>;
-}
+import {ChoiceFieldValue} from "../../models/choice-field-value";
 
 export enum EnumerationFieldValidation {
     WRONG_VALUE = 'wrongValue',
     REQUIRED = 'required'
 }
 
-export class EnumerationField extends DataField<any> implements CollectionField {
+export class EnumerationField extends CollectionField<any> {
     protected REQUEST_DEBOUNCE_TIME = 600;
 
     constructor(stringId: string, title: string, value: any,
-                protected _choices: Array<EnumerationFieldValue>, protected _collectionType: string, behavior: Behavior, placeholder?: string, description?: string,
+                protected _choices: Array<ChoiceFieldValue>, collectionType: string, behavior: Behavior, placeholder?: string, description?: string,
                 layout?: Layout, protected readonly _fieldType = FieldTypeResource.ENUMERATION,
                 validations?: Array<Validation>, component?: Component, parentTaskId?: string) {
-        super(stringId, title, value, behavior, placeholder, description, layout, validations, component, parentTaskId);
+        super(stringId, title, value, behavior, placeholder, description, layout, validations, component, parentTaskId,
+            collectionType);
     }
 
-    set choices(choices: Array<EnumerationFieldValue>) {
+    set choices(choices: Array<ChoiceFieldValue>) {
         this._choices = choices;
     }
 
-    get choices(): Array<EnumerationFieldValue> {
+    get choices(): Array<ChoiceFieldValue> {
         return this._choices;
     }
 
@@ -66,14 +58,6 @@ export class EnumerationField extends DataField<any> implements CollectionField 
             return null;
         }
         return this._choices.find(choice => choice.value === control.value || control.value === null) ? null : {wrongValue: true};
-    }
-
-    set collectionType(value: string) {
-        this._collectionType = value;
-    }
-
-    get collectionType(): string {
-        return this._collectionType.toString();
     }
 
     convertTimestampToDateTime(timestamp: number): Date {

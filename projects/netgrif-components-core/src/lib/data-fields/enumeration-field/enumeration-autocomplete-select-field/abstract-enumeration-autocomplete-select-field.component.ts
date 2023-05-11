@@ -2,10 +2,11 @@ import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angul
 import {FormControl} from '@angular/forms';
 import {Observable, of} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
-import {EnumerationField, EnumerationFieldValidation, EnumerationFieldValue} from '../models/enumeration-field';
+import {EnumerationField, EnumerationFieldValidation} from '../models/enumeration-field';
 import {WrappedBoolean} from '../../data-field-template/models/wrapped-boolean';
 import {TranslateService} from '@ngx-translate/core';
 import {EnumerationAutocompleteFilterProperty} from "./enumeration-autocomplete-filter-property";
+import {ChoiceFieldValue} from "../../models/choice-field-value";
 
 @Component({
     selector: 'ncc-abstract-enumeration-autocomplete-field',
@@ -18,7 +19,7 @@ export abstract class AbstractEnumerationAutocompleteSelectFieldComponent implem
     @Input() showLargeLayout: WrappedBoolean;
     @ViewChild('input') text: ElementRef;
 
-    filteredOptions: Observable<Array<EnumerationFieldValue>>;
+    filteredOptions: Observable<Array<ChoiceFieldValue>>;
 
     constructor(protected _translate: TranslateService) {
     }
@@ -44,7 +45,7 @@ export abstract class AbstractEnumerationAutocompleteSelectFieldComponent implem
         }
     }
 
-    protected _filter(value: string): Array<EnumerationFieldValue> {
+    protected _filter(value: string): Array<ChoiceFieldValue> {
         let filterType = this.filterType()?.toLowerCase()
         switch (filterType) {
             case EnumerationAutocompleteFilterProperty.SUBSTRING:
@@ -56,7 +57,7 @@ export abstract class AbstractEnumerationAutocompleteSelectFieldComponent implem
         }
     }
 
-    protected _filterInclude(value: string): Array<EnumerationFieldValue> {
+    protected _filterInclude(value: string): Array<ChoiceFieldValue> {
         const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         return this.enumerationField.choices.filter(option =>
             option.value.toString().toLowerCase()
@@ -71,7 +72,7 @@ export abstract class AbstractEnumerationAutocompleteSelectFieldComponent implem
      * @param  value to compare matching options
      * @return  return matched options
      */
-    protected _filterIndexOf(value: string): Array<EnumerationFieldValue> {
+    protected _filterIndexOf(value: string): Array<ChoiceFieldValue> {
         const filterValue = value?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
         return this.enumerationField.choices.filter(option => option.value.toString().toLowerCase().normalize('NFD')

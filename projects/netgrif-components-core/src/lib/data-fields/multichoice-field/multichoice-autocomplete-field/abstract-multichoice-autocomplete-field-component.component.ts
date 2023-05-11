@@ -1,11 +1,12 @@
 import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {MultichoiceField, MultichoiceFieldValue} from '../models/multichoice-field';
+import {MultichoiceField} from '../models/multichoice-field';
 import {FormControl} from '@angular/forms';
 import {WrappedBoolean} from '../../data-field-template/models/wrapped-boolean';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {MatChipInputEvent} from '@angular/material/chips';
 import {Observable, of, Subscription} from 'rxjs';
 import {MultichoiceAutocompleteFilterProperty} from './multichoice-autocomplete-filter-property';
+import {ChoiceFieldValue} from "../../models/choice-field-value";
 
 @Component({
     selector: 'ncc-abstract-multichoice-autocomplete-field',
@@ -22,7 +23,7 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
 
     subscriptionChangeData$: Subscription;
 
-    filteredOptions: Observable<Array<MultichoiceFieldValue>>;
+    filteredOptions: Observable<Array<ChoiceFieldValue>>;
 
     ngOnInit() {
         this.subscriptionChangeData$ =this.formControlRef.valueChanges.subscribe(newVal => {
@@ -78,7 +79,7 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
         }
     }
 
-    protected _filter(value: any): Array<MultichoiceFieldValue> {
+    protected _filter(value: any): Array<ChoiceFieldValue> {
         let filterType = this.filterType()?.toLowerCase()
         switch (filterType) {
             case MultichoiceAutocompleteFilterProperty.SUBSTRING:
@@ -90,7 +91,7 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
         }
     }
 
-    protected _filterInclude(value: string): Array<MultichoiceFieldValue> {
+    protected _filterInclude(value: string): Array<ChoiceFieldValue> {
         if (typeof value === 'string') {
             if (Array.isArray(value)) {
                 value = '';
@@ -109,7 +110,7 @@ export abstract class AbstractMultichoiceAutocompleteFieldComponentComponent imp
         }
     }
 
-    protected _filterIndexOf(value: any): Array<MultichoiceFieldValue> {
+    protected _filterIndexOf(value: any): Array<ChoiceFieldValue> {
         if (typeof value === 'string') {
             if (Array.isArray(value)) {
                 value = '';

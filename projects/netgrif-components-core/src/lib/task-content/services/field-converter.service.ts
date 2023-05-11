@@ -4,8 +4,8 @@ import {DataField} from '../../data-fields/models/abstract-data-field';
 import {BooleanField} from '../../data-fields/boolean-field/models/boolean-field';
 import {TextField} from '../../data-fields/text-field/models/text-field';
 import {NumberField} from '../../data-fields/number-field/models/number-field';
-import {EnumerationField, EnumerationFieldValue} from '../../data-fields/enumeration-field/models/enumeration-field';
-import {MultichoiceField, MultichoiceFieldValue} from '../../data-fields/multichoice-field/models/multichoice-field';
+import {EnumerationField} from '../../data-fields/enumeration-field/models/enumeration-field';
+import {MultichoiceField} from '../../data-fields/multichoice-field/models/multichoice-field';
 import {DateField} from '../../data-fields/date-field/models/date-field';
 import {DateTimeField} from '../../data-fields/date-time-field/models/date-time-field';
 import {UserField} from '../../data-fields/user-field/models/user-field';
@@ -23,7 +23,7 @@ import {FilterField} from '../../data-fields/filter-field/models/filter-field';
 import {I18nField} from '../../data-fields/i18n-field/models/i18n-field';
 import {UserListField} from '../../data-fields/user-list-field/models/user-list-field';
 import {ListField} from "../../data-fields/list-field/models/list-field";
-import {CollectionField} from "../../data-fields/collection-field/models/collection-field";
+import {ChoiceFieldValue} from "../../data-fields/models/choice-field-value";
 
 @Injectable({
     providedIn: 'root'
@@ -206,18 +206,18 @@ export class FieldConverterService {
      * @param enumField enumeration field resource object who's choices we want to resolve
      * @returns the options for the enumeration field
      */
-    protected resolveEnumChoices(enumField: DataFieldResource): Array<EnumerationFieldValue> {
+    protected resolveEnumChoices(enumField: DataFieldResource): Array<ChoiceFieldValue> {
         const enumChoices = [];
         if (enumField.choices instanceof Array) {
             enumField.choices.forEach(it => {
                 enumChoices.push({
                     key: it.toString(),
                     value: this.formatCollectionValueFromBackend(it, enumField.collectionType)
-                } as EnumerationFieldValue);
+                } as ChoiceFieldValue);
             });
         } else {
             Object.keys(enumField.choices).forEach(key => {
-                enumChoices.push({key, value: enumField.choices[key]} as EnumerationFieldValue);
+                enumChoices.push({key, value: enumField.choices[key]} as ChoiceFieldValue);
             });
         }
         return enumChoices;
@@ -228,7 +228,7 @@ export class FieldConverterService {
      * @param enumField enumeration field resource object who's options we want to resolve
      * @returns the options for the enumeration field
      */
-    protected resolveEnumOptions(enumField: DataFieldResource): Array<EnumerationFieldValue> {
+    protected resolveEnumOptions(enumField: DataFieldResource): Array<ChoiceFieldValue> {
         return Object.entries(enumField.options).map(entry => ({
                 key: entry[0],
                 value: this.formatCollectionValueFromBackend(entry[1], enumField.collectionType)
@@ -255,18 +255,18 @@ export class FieldConverterService {
      * @param multiField multichoice field resource object who's options we want to resolve
      * @returns the options for the multichoice field
      */
-    protected resolveMultichoiceChoices(multiField: DataFieldResource): Array<MultichoiceFieldValue> {
-        const choicesMulti: Array<MultichoiceFieldValue> = [];
+    protected resolveMultichoiceChoices(multiField: DataFieldResource): Array<ChoiceFieldValue> {
+        const choicesMulti: Array<ChoiceFieldValue> = [];
         if (multiField.choices instanceof Array) {
             multiField.choices.forEach(it => {
                 choicesMulti.push({
                     key: it.toString(),
                     value: this.formatCollectionValueFromBackend(it, multiField.collectionType)
-                } as MultichoiceFieldValue);
+                } as ChoiceFieldValue);
             });
         } else {
             Object.keys(multiField.choices).forEach(key => {
-                choicesMulti.push({key, value: multiField.choices[key]} as MultichoiceFieldValue);
+                choicesMulti.push({key, value: multiField.choices[key]} as ChoiceFieldValue);
             });
         }
         return choicesMulti;
@@ -277,14 +277,14 @@ export class FieldConverterService {
      * @param multiField multichoice field resource object who's options we want to resolve
      * @returns the options for the multichoice field
      */
-    protected resolveMultichoiceOptions(multiField: DataFieldResource): Array<MultichoiceFieldValue> {
+    protected resolveMultichoiceOptions(multiField: DataFieldResource): Array<ChoiceFieldValue> {
         return Object.entries(multiField.options).map(entry => ({
             key: entry[0],
             value: this.formatCollectionValueFromBackend(entry[1], multiField.collectionType)
         }));
     }
 
-    protected resolveListField(listField: DataFieldResource): CollectionField {
+    protected resolveListField(listField: DataFieldResource): ListField {
         switch (listField.collectionType) {
             case FieldTypeResource.USER:
                 let userListValue: UserValue[] = [];
