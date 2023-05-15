@@ -236,8 +236,7 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
     }
 
     public download(fileName: string) {
-        if (!this.dataField.value || !this.dataField.value ||
-            !this.dataField.value.find(namePath => namePath.name === fileName)) {
+        if (!this.dataField.value || !this.dataField.value.find(namePath => namePath.name === fileName)) {
             return;
         }
         if (!this.taskId) {
@@ -280,8 +279,7 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
     }
 
     public deleteFile(fileName: string) {
-        if (!this.dataField.value || !this.dataField.value ||
-            !this.dataField.value.find(namePath => namePath.name === fileName)) {
+        if (!this.dataField.value || !this.dataField.value.find(namePath => namePath.name === fileName)) {
             return;
         }
         if (!this.taskId) {
@@ -299,9 +297,10 @@ export abstract class AbstractFileListFieldComponent extends AbstractDataFieldCo
                 this.fileUploadEl.nativeElement.value = '';
                 this.uploadedFiles = this.uploadedFiles.filter(uploadedFile => uploadedFile !== fileName);
                 if (this.dataField.value) {
-                    let newValue: FileFieldValue[] = [];
-                    newValue.push(...this.dataField.value.filter(namePath => namePath.name !== fileName))
-                    this.dataField.value = newValue;
+                    const index = this.dataField.value.findIndex((obj: FileFieldValue) => obj.name === fileName);
+                    if (index !== -1) {
+                        this.dataField.value.splice(index, 1);
+                    }
                     this.formControl.setValue(this.dataField.value.map(namePath => {
                         return namePath['name'];
                     }).join('/'));
