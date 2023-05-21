@@ -332,7 +332,6 @@ export class FieldConverterService {
                 return value;
             case FieldTypeResource.I18N:
                 return value as string;
-                break;
             default:
                 console.log('Unknown field type');
                 break;
